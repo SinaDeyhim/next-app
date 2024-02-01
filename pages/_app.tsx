@@ -25,6 +25,7 @@ import {
   sepolia,
   zora,
 } from "wagmi/chains";
+import TransactionList from "../conponents/TransactionList";
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [mainnet, polygon, optimism, arbitrum, base, zora, sepolia],
@@ -68,6 +69,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     <WagmiConfig config={wagmiConfig}>
       <RainbowKitProvider appInfo={demoAppInfo} chains={chains} locale={locale}>
         <Component {...pageProps} />
+        <TransactionList />
       </RainbowKitProvider>
     </WagmiConfig>
   );
