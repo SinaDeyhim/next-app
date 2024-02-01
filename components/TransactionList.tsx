@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { getTxs } from "../utils/tx-history";
 import { AssetTransfersWithMetadataResponse } from "alchemy-sdk/dist/src/types/types";
 import TxTable from "./TxTable";
 import LoadingState from "./LoadingState";
 import EmptyState from "./EmptyState";
 import { useAccount } from "wagmi";
+import { calculateRiskCounts } from "../utils/risk";
+import RiskIndicator from "./RiskIndicator";
 
 const TransactionList: React.FC = () => {
   const [transactions, setTransactions] =
@@ -12,6 +14,8 @@ const TransactionList: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isEmpty, setIsEmpty] = useState(false);
   const { address, isConnected } = useAccount();
+  const [riskDist, setRiskDist] = useState<number[]>([0, 0, 0]);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -29,6 +33,10 @@ const TransactionList: React.FC = () => {
           } else {
             setIsEmpty(false);
           }
+
+          // Calculate risk levels after setting transactions
+          const risks = calculateRiskCounts(txHistory?.transfers);
+          setRiskDist(risks);
         }
       } catch (error) {
         console.error("Error fetching transactions:", error);
@@ -45,11 +53,29 @@ const TransactionList: React.FC = () => {
     setIsEmpty(!isConnected);
   }, [isConnected]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    handleResize(); // Set initial value
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   return (
-    <div className="bg-slate-slate-900 text-slate-200">
-      <h2 className="bg-slate-900 text-slate-200 p-4 text-2xl">
-        Transaction List
-      </h2>
+    <div className="bg-slate-900 text-slate-200">
+      <div className="flex justify-between">
+        <h2 className="bg-slate-900 text-slate-200 p-4 text-2xl">
+          Transaction List
+        </h2>
+        {!isMobile && <RiskIndicator riskCounts={riskDist} />}
+      </div>
+      {isMobile && <RiskIndicator riskCounts={riskDist} />}
       <ul>
         {isLoading ? (
           <LoadingState />
