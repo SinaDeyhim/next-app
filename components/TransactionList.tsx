@@ -5,17 +5,25 @@ import TxTable from "./TxTable";
 import LoadingState from "./LoadingState";
 import EmptyState from "./EmptyState";
 import { useAccount } from "wagmi";
-import { calculateRiskCounts } from "../utils/risk";
+import {
+  RiskLevel,
+  calculateRiskCounts,
+  filterTransactionsByRisk,
+} from "../utils/risk";
 import RiskIndicator from "./RiskIndicator";
 
 const TransactionList: React.FC = () => {
   const [transactions, setTransactions] =
     useState<AssetTransfersWithMetadataResponse>();
+
   const [isLoading, setIsLoading] = useState(true);
   const [isEmpty, setIsEmpty] = useState(false);
   const { address, isConnected } = useAccount();
   const [riskDist, setRiskDist] = useState<number[]>([0, 0, 0]);
   const [isMobile, setIsMobile] = useState(false);
+  const [showAll, setShowAll] = useState(true);
+  const [filteredTxs, setFilteredTxs] =
+    useState<AssetTransfersWithMetadataResponse>();
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -67,15 +75,26 @@ const TransactionList: React.FC = () => {
     };
   }, []);
 
+  const filterRisk = useCallback((risk: RiskLevel) => {
+    if (transactions) {
+      const txs = filterTransactionsByRisk(transactions.transfers, risk);
+      setFilteredTxs({ transfers: txs });
+    }
+  }, []);
+
   return (
     <div className="bg-slate-900 text-slate-200">
       <div className="flex justify-between">
         <h2 className="bg-slate-900 text-slate-200 p-4 text-2xl">
           Transaction List
         </h2>
-        {!isMobile && <RiskIndicator riskCounts={riskDist} />}
+        {!isMobile && (
+          <RiskIndicator riskCounts={riskDist} callback={filterRisk} />
+        )}
       </div>
-      {isMobile && <RiskIndicator riskCounts={riskDist} />}
+      {isMobile && (
+        <RiskIndicator riskCounts={riskDist} callback={filterRisk} />
+      )}
       <ul>
         {isLoading ? (
           <LoadingState />

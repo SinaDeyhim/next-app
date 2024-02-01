@@ -1,10 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { RiskLevel } from "../utils/risk";
 
 interface RiskIndicatorProps {
   riskCounts: number[];
+  callback: (risk: RiskLevel) => void;
 }
 
-const RiskIndicator: React.FC<RiskIndicatorProps> = ({ riskCounts }) => {
+const RiskIndicator: React.FC<RiskIndicatorProps> = ({
+  riskCounts,
+  callback,
+}) => {
   const [isMobile, setIsMobile] = useState(false);
   const total = riskCounts.reduce((acc, count) => acc + count, 0);
   const calculatePercentage = (count: number) => {
@@ -25,9 +30,16 @@ const RiskIndicator: React.FC<RiskIndicatorProps> = ({ riskCounts }) => {
     };
   }, []);
 
+  const handleClick = useCallback(
+    (risk: RiskLevel) => () => {
+      callback(risk);
+    },
+    []
+  );
+
   return (
     <div className="flex items-center justify-between p-4">
-      <div className="flex items-center">
+      <div className="flex items-center" onClick={handleClick("low")}>
         <div
           className="w-6 h-6 bg-transparent rounded-full border border-green-500 mr-2 ml-4"
           style={{
@@ -39,7 +51,7 @@ const RiskIndicator: React.FC<RiskIndicatorProps> = ({ riskCounts }) => {
         {!isMobile && <span>{`Low Risk: ${riskCounts[0]}`}</span>}
         {isMobile && <span>{`${riskCounts[0]}`}</span>}
       </div>
-      <div className="flex items-center">
+      <div className="flex items-center" onClick={handleClick("med")}>
         <div
           className="w-6 h-6 bg-transparent rounded-full border border-yellow-500 mr-2 ml-4"
           style={{
@@ -51,7 +63,7 @@ const RiskIndicator: React.FC<RiskIndicatorProps> = ({ riskCounts }) => {
         {!isMobile && <span>{`Medium Risk: ${riskCounts[1]}`}</span>}
         {isMobile && <span>{`${riskCounts[1]}`}</span>}
       </div>
-      <div className="flex items-center">
+      <div className="flex items-center" onClick={handleClick("high")}>
         <div
           className="w-6 h-6 bg-transparent rounded-full border border-red-500 mr-2 ml-4"
           style={{
