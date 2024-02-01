@@ -16,18 +16,11 @@ import {
 } from "@rainbow-me/rainbowkit/wallets";
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { publicProvider } from "wagmi/providers/public";
-import {
-  arbitrum,
-  base,
-  mainnet,
-  optimism,
-  polygon,
-  sepolia,
-  zora,
-} from "wagmi/chains";
+import { mainnet } from "wagmi/chains";
+import TransactionList from "../components/TransactionList";
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [mainnet, polygon, optimism, arbitrum, base, zora, sepolia],
+  [mainnet],
   [publicProvider()]
 );
 
@@ -68,6 +61,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     <WagmiConfig config={wagmiConfig}>
       <RainbowKitProvider appInfo={demoAppInfo} chains={chains} locale={locale}>
         <Component {...pageProps} />
+        <TransactionList />
       </RainbowKitProvider>
     </WagmiConfig>
   );
