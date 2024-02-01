@@ -21,9 +21,7 @@ const TransactionList: React.FC = () => {
   const { address, isConnected } = useAccount();
   const [riskDist, setRiskDist] = useState<number[]>([0, 0, 0]);
   const [isMobile, setIsMobile] = useState(false);
-  const [showAll, setShowAll] = useState(true);
-  const [filteredTxs, setFilteredTxs] =
-    useState<AssetTransfersWithMetadataResponse>();
+  useState<AssetTransfersWithMetadataResponse>();
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -59,6 +57,9 @@ const TransactionList: React.FC = () => {
   useEffect(() => {
     // Update isEmpty state based on wallet connection status
     setIsEmpty(!isConnected);
+    if (!isConnected) {
+      setRiskDist([0, 0, 0]);
+    }
   }, [isConnected]);
 
   useEffect(() => {
@@ -78,7 +79,6 @@ const TransactionList: React.FC = () => {
   const filterRisk = useCallback((risk: RiskLevel) => {
     if (transactions) {
       const txs = filterTransactionsByRisk(transactions.transfers, risk);
-      setFilteredTxs({ transfers: txs });
     }
   }, []);
 
