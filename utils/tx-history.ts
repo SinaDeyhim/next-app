@@ -14,6 +14,7 @@ export const getTxs = async (address: string) => {
         fromBlock: "0x0",
         fromAddress: address,
         category: ["external", "internal", "erc20", "erc721", "erc1155"],
+        maxCount: 60
       });
 }
 

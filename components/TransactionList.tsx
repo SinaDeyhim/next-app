@@ -2,38 +2,48 @@ import React, { useState, useEffect } from "react";
 import { getTxs } from "../utils/tx-history";
 import { AssetTransfersWithMetadataResponse } from "alchemy-sdk/dist/src/types/types";
 import TxTable from "./TxTable";
-
-const network = "mainnet";
-const address = "0x3578486e00e2129f6ffc8595b70a9efb3592b50c";
+import LoadingState from "./LoadingState";
+import EmptyState from "./EmptyState";
+import { useAccount } from "wagmi";
 
 const TransactionList: React.FC = () => {
   const [transactions, setTransactions] =
     useState<AssetTransfersWithMetadataResponse>();
+  const [isEmpty, setIsEmpty] = useState(false);
+  const { address } = useAccount();
 
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
         // Fetch transaction history for the address
-        const txHistory = await getTxs(address);
+        if (address) {
+          const txHistory = await getTxs(address);
+          setTransactions(txHistory);
+        }
 
-        // Update the state with the fetched transactions
-        setTransactions(txHistory);
+        if (!transactions?.transfers?.length) {
+          setIsEmpty(true);
+        }
       } catch (error) {
         console.error("Error fetching transactions:", error);
       }
     };
 
     fetchTransactions();
-  }, []);
-  console.log(">>>> tran", transactions);
+  }, [address]);
+
   return (
-    <div>
-      <h2>Transaction List</h2>
+    <div className="bg-slate-slate-900 text-slate-200">
+      <h2 className="bg-slate-900 text-slate-200  p-4 text-2xl">
+        Transaction List
+      </h2>
       <ul>
         {transactions?.transfers?.length ? (
           <TxTable data={transactions.transfers} />
+        ) : isEmpty ? (
+          <EmptyState />
         ) : (
-          "No transactions found"
+          <LoadingState />
         )}
       </ul>
     </div>

@@ -1,7 +1,9 @@
 import "../styles/global.css";
 import "@rainbow-me/rainbowkit/styles.css";
+import "../components/LoadingState.css";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
+import { darkTheme } from "@rainbow-me/rainbowkit";
 
 import {
   RainbowKitProvider,
@@ -16,19 +18,11 @@ import {
 } from "@rainbow-me/rainbowkit/wallets";
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { publicProvider } from "wagmi/providers/public";
-import {
-  arbitrum,
-  base,
-  mainnet,
-  optimism,
-  polygon,
-  sepolia,
-  zora,
-} from "wagmi/chains";
-import TransactionList from "../conponents/TransactionList";
+import { mainnet } from "wagmi/chains";
+import TransactionList from "../components/TransactionList";
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [mainnet, polygon, optimism, arbitrum, base, zora, sepolia],
+  [mainnet],
   [publicProvider()]
 );
 
@@ -65,10 +59,18 @@ const wagmiConfig = createConfig({
 
 function MyApp({ Component, pageProps }: AppProps) {
   const { locale } = useRouter() as { locale: Locale };
+
   return (
     <WagmiConfig config={wagmiConfig}>
-      <RainbowKitProvider appInfo={demoAppInfo} chains={chains} locale={locale}>
-        <Component {...pageProps} />
+      <RainbowKitProvider
+        appInfo={demoAppInfo}
+        chains={chains}
+        locale={locale}
+        theme={darkTheme()}
+      >
+        <div className="bg-slate-950 text-slate-200 font-sans">
+          <Component {...pageProps} />
+        </div>
         <TransactionList />
       </RainbowKitProvider>
     </WagmiConfig>
