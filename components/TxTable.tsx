@@ -101,8 +101,10 @@ const TxTable: React.FC<TableProps> = ({ data }) => {
     if (sort.column && sort.direction) {
       const sortedTxs = [...data].sort((a, b) => {
         if (sort.direction === "asc") {
+          // @ts-ignore
           return a[sort.column] > b[sort.column] ? 1 : -1;
         } else {
+          // @ts-ignore
           return a[sort.column] < b[sort.column] ? 1 : -1;
         }
       });
